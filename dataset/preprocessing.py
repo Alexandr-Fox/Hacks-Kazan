@@ -5,7 +5,7 @@ from sklearn import preprocessing
 import numpy as np
 
 
-def get_tokenizer_model(model_name: str) -> Tuple[Any, Any]:
+def get_tokenizer_model(model_name: str = "deepvk/deberta-v1-base") -> Tuple[Any, Any]:
     """
     Get tokenizer and model from model name
     """
