@@ -20,6 +20,7 @@ def normalize(data: np.ndarray) -> np.ndarray:
     """
     return preprocessing.normalize(data, norm='l2')
 
+
 def standardize(data: np.ndarray) -> np.ndarray:
     """
     Standardize the data
@@ -27,6 +28,15 @@ def standardize(data: np.ndarray) -> np.ndarray:
     scaler = preprocessing.StandardScaler()
     scaler.fit(data)
     return scaler.transform(data)
+
+
+def classes_to_numbers(data: np.ndarray) -> np.ndarray:
+    """
+    Convert the classes to numbers
+    """
+    le = preprocessing.LabelEncoder()
+    le.fit(data)
+    return le.transform(data)
 
 
 def get_word_idx(sent: str, word: str) -> int:
@@ -92,7 +102,7 @@ def chunking(max_len, sent):
     return sent_chunk
 
 
-def main_avg(sent: str, tokenizer, model, layers=None, chunk_size=300):
+def embeddings_avg(sent: str, tokenizer, model, layers=None, chunk_size=300):
     """Gives the average word embedding per sentence
 
     Args:
