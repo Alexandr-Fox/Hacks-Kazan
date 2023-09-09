@@ -52,42 +52,41 @@ def get_video_corpus(data: DataFrame, index: NNDescent, vector: np.ndarray):
     return data[data["item_id"].isin(vids_ids)].values, vids_ids
 
 
-def get_10_category(train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> list:
-    if new_hist is not None:
-        train_hist = train_hist.append(new_hist, ignore_index=True)
-    cat_columns = [col for col in tqdm(train_hist.columns) if col.startswith('cat')]
-    cat_data = train_hist[cat_columns]
+# def get_10_category(train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> list:
+#     if new_hist is not None:
+#         train_hist = train_hist.append(new_hist, ignore_index=True)
+#     cat_columns = [col for col in tqdm(train_hist.columns) if col.startswith('cat')]
+#     cat_data = train_hist[cat_columns]
+#
+#     # подсчет количества 1 в каждом столбце
+#     counts = cat_data.sum()
+#
+#     # сортировка столбцов по убыванию количества 1 и вывод первых 10
+#     top_columns = counts.sort_values(ascending=False)[:10]
+#     return top_columns
+#
+#
+# def get_top_videos_in_cat(cat_name, train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> str:
+#     if new_hist is not None:
+#         train_hist = train_hist.append(new_hist, ignore_index=True)
+#     cat_data = train_hist.loc[train_hist[cat_name] == 1]
+#     counts = cat_data['item_id'].value_counts()
+#     return counts.index[0]
+#
+#
+# def get_top_videos(train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> list:
+#     top_category = get_10_category(train_hist, new_hist)
+#     return [get_top_videos_in_cat(i, train_hist, new_hist) for i in tqdm(top_category)]
 
-    # подсчет количества 1 в каждом столбце
-    counts = cat_data.sum()
 
-    # сортировка столбцов по убыванию количества 1 и вывод первых 10
-    top_columns = counts.sort_values(ascending=False)[:10]
-    return top_columns
-
-
-def get_top_videos_in_cat(cat_name, train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> str:
-    if new_hist is not None:
-        train_hist = train_hist.append(new_hist, ignore_index=True)
-    cat_data = train_hist.loc[train_hist[cat_name] == 1]
-    counts = cat_data['item_id'].value_counts()
-    return counts.index[0]
-
-
-def get_top_videos(train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> list:
-    top_category = get_10_category(train_hist, new_hist)
-    return [get_top_videos_in_cat(i, train_hist, new_hist) for i in tqdm(top_category)]
-
-
-def create_submission_file(path: str, data: DataFrame, index: NNDescent, users: DataFrame, emotions: DataFrame,
-                           train_hist: DataFrame, new_hist: DataFrame):
+def create_submission_file(path: str, data: DataFrame, index: NNDescent, users: DataFrame, emotions: DataFrame, popular: DataFrame):
     test_file = pd.read_csv(path)
     user_ids = test_file["user_id"].values
     preds = []
     for user_id in user_ids:
         x_predict = make_vector(data, test_file[test_file["user_id"] == user_id]["video_id"].values, users, emotions)
         if len(x_predict) == 0:
-            get_top_videos(train_hist, new_hist)
+            preds.append(popular["item_id"].values)
             break
         corpus, target = get_video_corpus(data, index, x_predict)
         preds.append(get_scores(corpus, target, x_predict, return_names=True, return_only_names=True))
@@ -102,11 +101,12 @@ if __name__ == "__main__":
     data = pd.read_csv("data.csv")
     users = pd.read_parquet('player_starts_train.parquet', engine='pyarrow')
     # users = pd.read_csv("player_starts_train.csv")
-    train_hist = pd.merge(users, data, on='item_id').drop(columns=["user_id"], axis=1)
-    try:
-        new_users = pd.read_csv("new_player_starts_train.csv")
-    except FileNotFoundError:
-        new_users = None
-    new_hist = pd.merge(new_users, data, on='item_id').drop(columns=["user_id"], axis=1)
+    # train_hist = pd.merge(users, data, on='item_id').drop(columns=["user_id"], axis=1)
+    # try:
+    #     new_users = pd.read_csv("new_player_starts_train.csv")
+    # except FileNotFoundError:
+    #     new_users = None
+    # new_hist = pd.merge(new_users, data, on='item_id').drop(columns=["user_id"], axis=1)
     emotions = pd.read_csv("emotions.csv")
-    create_submission_file("test.csv", data, index, users, emotions, train_hist, new_hist)
+    popular = pd.read_csv("popular.csv")
+    create_submission_file("test.csv", data, index, users, emotions, popular)
