@@ -48,8 +48,9 @@ def make_vector(data: DataFrame, video_ids: list[int], users: DataFrame, emotion
 
 def get_video_corpus(data: DataFrame, index: NNDescent, vector: np.ndarray):
     top100nearest = index.query(vector, k=100)
-    vids_ids = top100nearest[0]
-    return data[data["item_id"].isin(vids_ids)].values, vids_ids
+    vids_indices = top100nearest[0]
+
+    return data.iloc[vids_indices], vids_indices
 
 
 # def get_10_category(train_hist: pd.DataFrame, new_hist: pd.DataFrame = None) -> list:

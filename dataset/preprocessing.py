@@ -1,4 +1,7 @@
+import random
 from typing import Tuple, Any
+
+import pandas as pd
 import torch
 from transformers import AutoTokenizer, AutoModel
 from sklearn import preprocessing
@@ -143,3 +146,13 @@ def merge_vectors_by_avg(vectors: np.ndarray) -> np.ndarray:
     Merge vectors by average
     """
     return np.mean(vectors, axis=0)
+
+
+def get_popular(data: pd.DataFrame) -> np.ndarray:
+    popular = data["item_id"].to_numpy()
+    popular = np.reshape(popular, (10, 10))
+    result = []
+    for i in range(10):
+        result.append(popular[i][random.randint(0, 9)])
+    result = np.random.permutation(result)
+    return result

@@ -39,4 +39,4 @@ def get_scores_catboost(X, y, x_predict, return_names=False, return_only_names=F
 
 X, y = [[0, 0, 2, 6], [1, 1, 4, 2]], ['video_1', 'video_2']
 x_predict = [[1, 2, 3, 1]]
-print(get_scores_catboost(X, y, x_predict, return_names=True, return_only_names=True))
+print(get_scores(X, y, x_predict, return_names=True, return_only_names=True))
