@@ -95,9 +95,15 @@ def create_submission_file(path: str, data: DataFrame, index: NNDescent, users: 
 
 if __name__ == "__main__":
     index = NNDescent(np.load("vectors.npy"), n_jobs=16)
+    index.prepare()
     data = pd.read_csv("data.csv")
-    users = pd.read_csv("users.csv")
+    users = pd.read_parquet('player_starts_train.parquet', engine='pyarrow')
+    # users = pd.read_csv("player_starts_train.csv")
+    train_hist = pd.merge(users, data, on='item_id').drop(columns=["user_id"], axis=1)
+    try:
+        new_users = pd.read_csv("new_player_starts_train.csv")
+    except FileNotFoundError:
+        new_users = None
+    new_hist = pd.merge(new_users, data, on='item_id').drop(columns=["user_id"], axis=1)
     emotions = pd.read_csv("emotions.csv")
-    train_hist = pd.read_csv("train_hist.csv")
-    new_hist = pd.read_csv("new_hist.csv")
     create_submission_file("test.csv", data, index, users, emotions, train_hist, new_hist)
