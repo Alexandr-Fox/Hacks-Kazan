@@ -20,12 +20,19 @@ def get_video_corpus(data: DataFrame, index: NNDescent, vector: np.ndarray):
     return data[data["item_id"].isin(vids_ids)].values, vids_ids
 
 
+def get_popular_videos():
+    pass
+
+
 def create_submission_file(path: str, data: DataFrame, index: NNDescent):
     test_file = pd.read_csv(path)
     user_ids = test_file["user_id"].values
     preds = []
     for user_id in user_ids:
         x_predict = make_vector(data, test_file[test_file["user_id"] == user_id]["video_id"].values)
+        if len(x_predict) == 0:
+            preds.append(get_popular_videos())
+            break
         corpus, target = get_video_corpus(data, index, x_predict)
         preds.append(get_scores(corpus, target, x_predict, return_names=True, return_only_names=True))
 
