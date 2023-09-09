@@ -97,7 +97,7 @@ def create_submission_file(path: str, data: DataFrame, index: NNDescent, users: 
 
 
 if __name__ == "__main__":
-    index = NNDescent(np.load("vectors.npy"), n_jobs=16)
+    index = NNDescent(np.load("vectors.npy"), n_jobs=16, metric='euclidean')
     index.prepare()
     data = pd.read_csv("data.csv")
     users = pd.read_parquet('player_starts_train.parquet', engine='pyarrow')
