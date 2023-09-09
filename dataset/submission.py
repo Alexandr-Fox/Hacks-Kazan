@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame
 from pynndescent import NNDescent
+from sklearn import preprocessing
 from tqdm import tqdm
 
 from dataset.regression import get_scores
@@ -17,6 +18,7 @@ def vid_long(videos: DataFrame, user_id: int, users: DataFrame) -> DataFrame:
             if (row["duration"] / 1000) > 300
             else row["watch_time"] > 30)
         else 1, axis=1)
+        hist[f"v_title_{i}"] = preprocessing.minmax_scale(hist[f"v_title_{i}"].T).T
     return hist.drop(columns=["watch_time", "duration"], axis=1)
 
 
@@ -30,6 +32,7 @@ def like(videos: pd.DataFrame, user_id: int, users: pd.DataFrame, emotions: pd.D
     for i in tqdm(range(100)):
         hist[f"v_title_{i}"] = hist.progress_apply(lambda row: row[f"v_title_{i}"] * 2 if row["C4"] == "pos_emotions"
         else (0.5 if row["C4"] == "neg_emotions" else 1), axis=1)
+        hist[f"v_title_{i}"] = preprocessing.minmax_scale(hist[f"v_title_{i}"].T).T
     return hist.drop(columns=["C4", "C3"], axis=1)
 
 
