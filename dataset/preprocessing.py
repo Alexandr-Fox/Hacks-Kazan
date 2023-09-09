@@ -136,3 +136,10 @@ def embeddings_avg(sent: str, tokenizer, model, layers=None, chunk_size=300):
     word_embedding_avg = np.mean(word_embedding_avg_collective, axis=0)
     assert len(word_embedding_avg) == 768
     return word_embedding_avg
+
+
+def merge_vectors_by_avg(vectors: np.ndarray) -> np.ndarray:
+    """
+    Merge vectors by average
+    """
+    return np.mean(vectors, axis=0)
